@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.merck.library_management_system.entity.Book;
 import com.merck.library_management_system.repository.BookRepository;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api(value = "Book Operations", description = "Operations related to book management")
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/book")
@@ -28,7 +32,7 @@ public class BookController {
 	@Autowired
 	BookRepository bp;
 	
-	
+	@ApiOperation(value = "Book Details", notes = "Get all Book details")
 	@GetMapping("/get")
 	public ResponseEntity<List<Book>> getAllBooks() {
 	    List<Book> books = bp.findAll(); 
@@ -39,6 +43,7 @@ public class BookController {
 	    return ResponseEntity.ok(books); // Return 200 OK with the list of books
 	}
 
+	@ApiOperation(value = "Book Details", notes = "Get Book details by Book ID")
 	@GetMapping("/id/{myId}")
 	public ResponseEntity<Book> getBookById(@PathVariable Long myId) {
 	    Optional<Book> bookOpt = bp.findById(myId); // Use Optional to avoid NoSuchElementException
@@ -49,11 +54,13 @@ public class BookController {
 	    }
 	}
 	
+	@ApiOperation(value = "Search Book", notes = "Search Book by id")
 	@GetMapping("/search")
 	public Book getBook(@RequestParam Long myId) {		
 		return bp.findById(myId).get();
 	}
 	
+	@ApiOperation(value = "Create Book", notes = "Add a new Book")
 	@PostMapping("/post")
 	public ResponseEntity<String> createBook(@RequestBody Book myEntry ) {
 		Long id = myEntry.getId();
@@ -65,6 +72,8 @@ public class BookController {
 			return ResponseEntity.status(HttpStatus.CREATED).body("Book created successfully.");
 		}
 	}
+	
+	@ApiOperation(value = "Delete Book", notes = "Delete a Book by id")
 	@DeleteMapping("/delete/{myId}")
 	public ResponseEntity<String> deleteBookById(@PathVariable Long myId) {
 		 if(bp.existsById(myId)) {
@@ -76,6 +85,7 @@ public class BookController {
 		 }
 	}
 	
+	@ApiOperation(value = "Update Book", notes = "Update a Book details")
 	@PutMapping("/update")
 	public ResponseEntity<String> updateBookById(@RequestBody Book myEntry ) {
 		Long id = myEntry.getId();

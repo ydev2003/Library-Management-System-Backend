@@ -21,6 +21,11 @@ import com.merck.library_management_system.repository.AdminRepository;
 import com.merck.library_management_system.repository.BookRepository;
 import com.merck.library_management_system.repository.StudentRepository;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+
+@Api(value = "Admin Operations", description = "Operations related to admin management")
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/admin")
@@ -36,6 +41,7 @@ public class AdminController {
 	AdminRepository ap;
 	
 	
+	@ApiOperation(value = "Issue a book", notes = "Issues a book to a student.")
 	@PutMapping("/issue")
 	@Transactional
  	public ResponseEntity<String> issue (@RequestParam Long bookId, @RequestParam String studentId) {
@@ -71,6 +77,8 @@ public class AdminController {
  			 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("There is no book with this ID.");
  		}
  	}
+	
+	@ApiOperation(value = "Submit a book", notes = "Submit a book from a student.")
  	
  	@PutMapping("/submit")
  	@Transactional
@@ -110,7 +118,7 @@ public class AdminController {
  	 	}
  	}
  	
- 	
+	@ApiOperation(value = "Create Admin", notes = "Create a new Admin")
  	@PostMapping("/admin")
  	public boolean addAdmin(@RequestBody Admin admin) {
  		String id = admin.getUsername();

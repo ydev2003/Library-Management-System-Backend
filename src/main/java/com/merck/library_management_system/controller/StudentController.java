@@ -21,7 +21,10 @@ import com.merck.library_management_system.entity.Book;
 import com.merck.library_management_system.entity.Student;
 import com.merck.library_management_system.repository.StudentRepository;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
+@Api(value = "Student Operations", description = "Operations related to student management")
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/student")
@@ -30,6 +33,7 @@ public class StudentController {
 	@Autowired
 	StudentRepository sp;
 	
+	@ApiOperation(value = "Get All Student", notes = "Get all student details")
 	@GetMapping("/get")
 	public ResponseEntity<List<Student>> getAllStudents() {
 	    List<Student> students = sp.findAll(); // Fetch all students
@@ -40,6 +44,7 @@ public class StudentController {
 	    return ResponseEntity.ok(students); // Return 200  Return the sorted list
 	}
 	
+	@ApiOperation(value = "Get Student by ID", notes = "Get student details by his ID")
 	@GetMapping("/id/{myId}")
 	public ResponseEntity<Student> getStudentById(@PathVariable String myId) {
 		Optional<Student> studentOpt = sp.findById(myId);
@@ -50,6 +55,7 @@ public class StudentController {
 	}
 	
 	
+	@ApiOperation(value = "Add Student", notes = "Add a new Student")
 	@PostMapping("/post")
 	@PreAuthorize("hasAnyAuthority('ADMIN')")
 	public  ResponseEntity<String> createStudent(@RequestBody Student myEntry ) {
@@ -63,6 +69,7 @@ public class StudentController {
 		}
 	}	
 	
+	@ApiOperation(value = "Delete Student", notes = "Delete a Student")
 	@DeleteMapping("/delete/{myId}")
 	public ResponseEntity<String> deleteStudentById(@PathVariable String myId) {
 		if(sp.existsById(myId)) {
@@ -74,6 +81,7 @@ public class StudentController {
 		}
 	}
 	
+	@ApiOperation(value = "Update Student Details", notes = "Update a student Details")
 	@PutMapping("/update")
 	public ResponseEntity<String> updateStudentById(@RequestBody Student myEntry ) {
 		String id = myEntry.getUsername();
@@ -86,7 +94,7 @@ public class StudentController {
 		}
 	}
 	
-	
+	@ApiOperation(value = "Get Book Details", notes = "Get book Details taken by a student")
 	@GetMapping("/book/{myId}")
 	public  ResponseEntity<List<Book>> getStudentBookById(@PathVariable String myId) {
 		if(sp.existsById(myId)) {
@@ -98,6 +106,5 @@ public class StudentController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
-	
 
 }

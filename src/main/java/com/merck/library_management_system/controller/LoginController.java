@@ -19,6 +19,11 @@ import com.merck.library_management_system.securitymodels.AuthenticationRequest;
 import com.merck.library_management_system.securitymodels.AuthenticationResponse;
 import com.merck.library_management_system.services.MyUserDetailsService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+
+@Api(value = "Authentication Operations", description = "Operations related to Authentication management")
 @CrossOrigin
 @RestController
 @RequestMapping("/login")
@@ -38,11 +43,13 @@ public class LoginController {
 		return "Hello World";
 	}
 	
+	@ApiOperation(value = "Admin Login", notes = "Login as Admin")
 	@PostMapping("/admin")
     public ResponseEntity<?> createAuthenticationTokenForAdmin(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         return createAuthenticationToken(authenticationRequest, "ROLE_ADMIN");
     }
 
+	@ApiOperation(value = "Student Login", notes = "Login as Student")
     @PostMapping("/user")
     public ResponseEntity<?> createAuthenticationTokenForStudent(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         return createAuthenticationToken(authenticationRequest, "ROLE_STUDENT");

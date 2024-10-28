@@ -41,6 +41,7 @@ public class SecurityConfig {
         http.csrf().disable()
             .cors().and()
             .authorizeRequests()
+            .antMatchers("/v2/api-docs", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**").permitAll() // Allow access to Swagger
             .antMatchers("/login/user", "/login/admin","/book/get","/book/id/*").permitAll()
             .antMatchers("/admin/**","/book/**","/student/**").hasRole("ADMIN") // Admin-specific endpoints
             .antMatchers("/user/**").hasRole("STUDENT") // Student-specific endpoints

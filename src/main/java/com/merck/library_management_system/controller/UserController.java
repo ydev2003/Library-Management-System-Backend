@@ -25,6 +25,10 @@ import com.merck.library_management_system.repository.BookRepository;
 import com.merck.library_management_system.repository.StudentRepository;
 import com.merck.library_management_system.security.JwtUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
+@Api(value = "User Operations", description = "Operations related to user management")
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/user")
@@ -42,7 +46,7 @@ public class UserController {
 	 @Autowired
 	 private JwtUtil jwtUtil;
 	
-	
+	 @ApiOperation(value = "Issue Book", notes = "Issue a book for yourself")
 	@PutMapping("/issue")
 	@Transactional
 	public ResponseEntity<String> issue(@RequestParam Long bookId, HttpServletRequest request) {
@@ -59,7 +63,7 @@ public class UserController {
 	    	 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("There is no student with this username.");
 	    }
 	    
-Student student=null;
+	    Student student=null;
  		
  		
  		if(bp.findById(bookId).isPresent()) {
@@ -91,6 +95,7 @@ Student student=null;
  		}
  	}
  	
+	 @ApiOperation(value = "Submit Book", notes = "Submit book taken by you")
  	@PutMapping("/submit")
  	@Transactional
  	public ResponseEntity<String> submit(@RequestParam Long bookId, HttpServletRequest request ) {
@@ -141,6 +146,7 @@ Student student=null;
  	 	}
  	}
  	
+	 @ApiOperation(value = "Book Details", notes = "Get book details taken by you")
 	@GetMapping("/book")
 	public ResponseEntity<List<Book>> getStudentBookById(HttpServletRequest request) {
 		String authorizationHeader = request.getHeader("Authorization");
