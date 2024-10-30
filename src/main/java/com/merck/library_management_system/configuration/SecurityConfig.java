@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.merck.library_management_system.security.JwtRequestFilter;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -37,19 +39,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-            .cors().and()
-            .authorizeRequests()
-            .antMatchers("/v2/api-docs", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**").permitAll() // Allow access to Swagger
-            .antMatchers("/login/user", "/login/admin","/book/get","/book/id/*").permitAll()
-            .antMatchers("/admin/**","/book/**","/student/**").hasRole("ADMIN") // Admin-specific endpoints
-            .antMatchers("/user/**").hasRole("STUDENT") // Student-specific endpoints
-            .anyRequest().authenticated()
-            .and()
-            .exceptionHandling()
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.csrf(csrf -> csrf.disable())
+                .cors(withDefaults())
+                .authorizeRequests(requests -> requests
+                        .antMatchers("/v2/api-docs", "/swagger-ui/**", "/swagger-resources/**", "/webjars/**").permitAll() // Allow access to Swagger
+                        .antMatchers("/login/user", "/login/admin").permitAll()
+                        .antMatchers("/admin/**", "/book/**", "/student/**").hasRole("ADMIN") // Admin-specific endpoints
+                        .antMatchers("/user/**").hasRole("STUDENT") // Student-specific endpoints
+                        .anyRequest().authenticated())
+                .exceptionHandling(withDefaults())
+                .sessionManagement(management -> management
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
