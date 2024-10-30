@@ -1,4 +1,4 @@
-package com.merck.library_management_system.filters;
+package com.merck.library_management_system.security;
 
 
 import java.io.IOException;
@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.merck.library_management_system.security.JwtUtil;
 import com.merck.library_management_system.services.MyUserDetailsService;
 
 @Component

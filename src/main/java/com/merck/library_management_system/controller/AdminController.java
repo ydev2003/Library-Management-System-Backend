@@ -21,11 +21,11 @@ import com.merck.library_management_system.repository.AdminRepository;
 import com.merck.library_management_system.repository.BookRepository;
 import com.merck.library_management_system.repository.StudentRepository;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
-@Api(value = "Admin Operations", description = "Operations related to admin management")
+@Tag(name = "Admin Operations", description = "Operations related to admin management")
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/admin")
@@ -41,7 +41,7 @@ public class AdminController {
 	AdminRepository ap;
 	
 	
-	@ApiOperation(value = "Issue a book", notes = "Issues a book to a student.")
+	@ApiOperation(tags = "Admin Operations", value = "Issue a book", notes = "Issues a book to a student.")
 	@PutMapping("/issue")
 	@Transactional
  	public ResponseEntity<String> issue (@RequestParam Long bookId, @RequestParam String studentId) {
@@ -78,8 +78,7 @@ public class AdminController {
  		}
  	}
 	
-	@ApiOperation(value = "Submit a book", notes = "Submit a book from a student.")
- 	
+	@ApiOperation(tags = "Admin Operations", value = "Submit a book", notes = "Submit a book from a student.")
  	@PutMapping("/submit")
  	@Transactional
  	public ResponseEntity<String> submit(@RequestParam Long bookId, @RequestParam String studentId) {
@@ -118,7 +117,7 @@ public class AdminController {
  	 	}
  	}
  	
-	@ApiOperation(value = "Create Admin", notes = "Create a new Admin")
+	@ApiOperation(tags = "Admin Operations", value = "Create Admin", notes = "Create a new Admin")
  	@PostMapping("/admin")
  	public boolean addAdmin(@RequestBody Admin admin) {
  		String id = admin.getUsername();

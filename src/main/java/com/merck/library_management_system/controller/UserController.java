@@ -10,9 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,12 +26,11 @@ import com.merck.library_management_system.entity.Student;
 import com.merck.library_management_system.repository.AdminRepository;
 import com.merck.library_management_system.repository.BookRepository;
 import com.merck.library_management_system.repository.StudentRepository;
-import com.merck.library_management_system.security.JwtUtil;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Api(value = "User Operations", description = "Operations related to user management")
+@Tag(name = "User Operations", description = "Operations related to user management")
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/user")
@@ -43,25 +45,36 @@ public class UserController {
 	@Autowired
 	AdminRepository ap;
 	
-	 @Autowired
-	 private JwtUtil jwtUtil;
+	 
+	 @ApiOperation(tags="User Operations", value = "All Book Details", notes = "Get all Book details")
+		@GetMapping("/book/get")
+		public ResponseEntity<List<Book>> getAllBooks() {
+		    List<Book> books = bp.findAll(); 
+		    books.sort((a, b) -> a.getBookName().compareTo(b.getBookName())); // Sort by book name
+		    if (books.isEmpty()) {
+		        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(books); // Return 204 No Content if no books found
+		    }
+		    return ResponseEntity.ok(books); // Return 200 OK with the list of books
+		}
+
+		@ApiOperation(tags="User Operations", value = "Book Details by Id", notes = "Get Book details by Book ID")
+		@GetMapping("/book/id/{myId}")
+		public ResponseEntity<Book> getBookById(@PathVariable Long myId) {
+		    Optional<Book> bookOpt = bp.findById(myId); // Use Optional to avoid NoSuchElementException
+		    if (bookOpt.isPresent()) {
+		        return ResponseEntity.ok(bookOpt.get()); // Return 200 OK with the book
+		    } else {
+		        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 Not Found if the book is not found
+		    }
+		}
 	
-	 @ApiOperation(value = "Issue Book", notes = "Issue a book for yourself")
+	 @ApiOperation(tags="User Operations", value = "Issue Book", notes = "Issue a book for yourself")
 	@PutMapping("/issue")
 	@Transactional
-	public ResponseEntity<String> issue(@RequestParam Long bookId, HttpServletRequest request) {
-	    // Extract the JWT token from the request header
-	    String authorizationHeader = request.getHeader("Authorization");
-	    String studentId = null;
-
-	    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-	        String jwt = authorizationHeader.substring(7); // Extract the token
-	        studentId = jwtUtil.extractUsername(jwt); // Extract the username from the token
-	    }
-
-	    if (studentId == null) {
-	    	 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("There is no student with this username.");
-	    }
+	public ResponseEntity<String> issue(@RequestParam Long bookId) {
+		 
+		User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	    String studentId = user.getUsername();	
 	    
 	    Student student=null;
  		
@@ -95,22 +108,13 @@ public class UserController {
  		}
  	}
  	
-	 @ApiOperation(value = "Submit Book", notes = "Submit book taken by you")
+	 @ApiOperation(tags="User Operations", value = "Submit Book", notes = "Submit book taken by you")
  	@PutMapping("/submit")
  	@Transactional
- 	public ResponseEntity<String> submit(@RequestParam Long bookId, HttpServletRequest request ) {
+ 	public ResponseEntity<String> submit(@RequestParam Long bookId) {
  		
- 		String authorizationHeader = request.getHeader("Authorization");
-	    String studentId = null;
-
-	    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-	        String jwt = authorizationHeader.substring(7); // Extract the token
-	        studentId = jwtUtil.extractUsername(jwt); // Extract the username from the token
-	    }
-
-	    if (studentId == null) {
-	    	 return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("There is no student with this username.");
-	    }
+		 User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		 String studentId = user.getUsername();	
  		
 	    Student student=null;
  		if(bp.findById(bookId).isPresent()) {
@@ -146,20 +150,11 @@ public class UserController {
  	 	}
  	}
  	
-	 @ApiOperation(value = "Book Details", notes = "Get book details taken by you")
+	 @ApiOperation(tags="User Operations", value = "Book Details", notes = "Get book details taken by you")
 	@GetMapping("/book")
-	public ResponseEntity<List<Book>> getStudentBookById(HttpServletRequest request) {
-		String authorizationHeader = request.getHeader("Authorization");
-	    String studentId = null;
-
-	    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-	        String jwt = authorizationHeader.substring(7); // Extract the token
-	        studentId = jwtUtil.extractUsername(jwt); // Extract the username from the token
-	    }
-
-	    if (studentId == null) {
-	        return null; // Handle case where student ID is not found
-	    }
+	public ResponseEntity<List<Book>> getStudentBookById() {
+		 User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		 String studentId = user.getUsername();	
 		
 	    if(sp.existsById(studentId)) {
 			 List<Book> books = sp.findById(studentId).get().getBookTaken();
@@ -170,22 +165,14 @@ public class UserController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
-	
+	 
+	 @ApiOperation(tags="User Operations", value = "Change Password", notes = "Change your password")
 	@PutMapping("/update")
 	@Transactional
 	public ResponseEntity<String> updateStudentById(@RequestParam String currentPassword, @RequestParam String newPassword, HttpServletRequest request ) {
 		
-		String authorizationHeader = request.getHeader("Authorization");
-	    String studentId = null;
-
-	    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-	        String jwt = authorizationHeader.substring(7); // Extract the token
-	        studentId = jwtUtil.extractUsername(jwt); // Extract the username from the token
-	    }
-
-	    if (studentId == null) {
-	    	return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("There is no student with this username.");
-	    }
+		 User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		 String studentId = user.getUsername();	
 	
 	    Optional<Student> studentOpt = sp.findById(studentId);
 	    if (studentOpt.isPresent()) {

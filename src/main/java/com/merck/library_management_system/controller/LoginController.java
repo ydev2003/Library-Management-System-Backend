@@ -1,6 +1,7 @@
 package com.merck.library_management_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,7 +9,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,11 +19,11 @@ import com.merck.library_management_system.securitymodels.AuthenticationRequest;
 import com.merck.library_management_system.securitymodels.AuthenticationResponse;
 import com.merck.library_management_system.services.MyUserDetailsService;
 
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 
-@Api(value = "Authentication Operations", description = "Operations related to Authentication management")
+@Tag(name = "Authentication Operations", description = "Operations related to Authentication management")
 @CrossOrigin
 @RestController
 @RequestMapping("/login")
@@ -38,22 +38,26 @@ public class LoginController {
 	@Autowired
 	private MyUserDetailsService userDetailsService;
 
-	@GetMapping({ "/hello" })
-	public String firstPage() {
-		return "Hello World";
-	}
+//	@GetMapping({ "/hello" })
+//	public String firstPage() {
+//		return "Hello World";
+//	}
 	
-	@ApiOperation(value = "Admin Login", notes = "Login as Admin")
+	@ApiOperation(tags="Authentication Operations", value="Admin Login", notes = "Login as Admin")
 	@PostMapping("/admin")
     public ResponseEntity<?> createAuthenticationTokenForAdmin(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         return createAuthenticationToken(authenticationRequest, "ROLE_ADMIN");
     }
+	
 
-	@ApiOperation(value = "Student Login", notes = "Login as Student")
+	@ApiOperation(tags="Authentication Operations", value = "Student Login", notes = "Login as Student")
     @PostMapping("/user")
     public ResponseEntity<?> createAuthenticationTokenForStudent(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         return createAuthenticationToken(authenticationRequest, "ROLE_STUDENT");
     }
+	
+	
+	
 
     private ResponseEntity<?> createAuthenticationToken(AuthenticationRequest authenticationRequest, String expectedRole) throws Exception {
         try {
